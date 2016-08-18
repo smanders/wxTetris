@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.3)
+project(wxTetris)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}) # Findexternpro.cmake
+set(externpro_REV 16.07.1)
+find_package(externpro REQUIRED)
+xpCommonFlags()
+xpGetExtern(externIncs externLibs PUBLIC wxWidgets)
+add_executable(${PROJECT_NAME} App.cpp Tetris.cpp Tetris.hpp)
+target_link_libraries(${PROJECT_NAME} ${externLibs})
+target_include_directories(${PROJECT_NAME} ${externIncs})

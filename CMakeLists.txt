@@ -7,7 +7,7 @@ if(CMAKE_CONFIGURATION_TYPES)
 endif()
 project(wxTetris)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}) # Findexternpro.cmake
-set(externpro_REV 17.05.1)
+set(externpro_REV 18.01.1)
 find_package(externpro REQUIRED)
 xpCommonFlags()
 xpGetExtern(externIncs externLibs PUBLIC wxWidgets)

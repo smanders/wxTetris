@@ -7,24 +7,18 @@ function(getCompilerPrefix _ret)
   set(options GCC_TWO_VER)
   cmake_parse_arguments(X "${options}" "" "" ${ARGN})
   if(MSVC)
-    if(MSVC14)
+    if(MSVC_VERSION GREATER 1910 AND MSVC_VERSION LESS 1919) # VS 15.0 2017
+      set(prefix vc141)
+    elseif(MSVC_VERSION EQUAL 1900) # VS 14.0 2015
       set(prefix vc140)
-    elseif(MSVC12)
+    elseif(MSVC_VERSION EQUAL 1800) # VS 12.0 2013
       set(prefix vc120)
-    elseif(MSVC11)
+    elseif(MSVC_VERSION EQUAL 1700) # VS 11.0 2012
       set(prefix vc110)
-    elseif(MSVC10)
+    elseif(MSVC_VERSION EQUAL 1600) # VS 10.0 2010
       set(prefix vc100)
-    elseif(MSVC90)
+    elseif(MSVC_VERSION EQUAL 1500) # VS 9.0 2008
       set(prefix vc90)
-    elseif(MSVC80)
-      set(prefix vc80)
-    elseif(MSVC71)
-      set(prefix vc71)
-    elseif(MSVC70)
-      set(prefix vc70)
-    elseif(MSVC60)
-      set(prefix vc60)
     else()
       message(SEND_ERROR "Findexternpro.cmake: MSVC compiler support lacking")
     endif()
@@ -90,7 +84,9 @@ find_path(externpro_DIR
     # build versions
     C:/src/externpro/_bld/externpro_${externpro_SIG}
     ~/src/externpro/_bld/externpro_${externpro_SIG}
-    # environment variable
+    # environment variable - build versions
+    "$ENV{externpro_BUILD_DIR}/externpro_${externpro_SIG}"
+    # environment variable - installed versions
     "$ENV{extern_DIR}/externpro ${externpro_SIG}"
     "$ENV{extern_DIR}/externpro-${externpro_SIG}-${CMAKE_SYSTEM_NAME}"
     # installed versions

@@ -267,9 +267,9 @@ void Board::onKeyDown(wxKeyEvent& rEvent)
   {
     pause();
     wxWindow* pWin =
-      GetParent()->IsTopLevel() ? GetParent() : (GetGrandParent()->IsTopLevel())
-                                                  ? GetGrandParent()
-                                                  : NULL;
+      GetParent()->IsTopLevel()
+        ? GetParent()
+        : (GetGrandParent()->IsTopLevel()) ? GetGrandParent() : NULL;
     const wxEventType EVT_TETRIS = wxNewEventType();
     FunEvent evt(EVT_TETRIS, pWin ? pWin->GetId() : wxID_ANY);
     evt.SetInt(0);
@@ -312,9 +312,9 @@ void Board::onKeyDown(wxKeyEvent& rEvent)
 void Board::onTimer(wxCommandEvent& WXUNUSED(rEvent))
 {
   wxWindow* pWin =
-    GetParent()->IsTopLevel() ? GetParent() : (GetGrandParent()->IsTopLevel())
-                                                ? GetGrandParent()
-                                                : NULL;
+    GetParent()->IsTopLevel()
+      ? GetParent()
+      : (GetGrandParent()->IsTopLevel()) ? GetGrandParent() : NULL;
   wxTopLevelWindow* pTop = pWin ? static_cast<wxTopLevelWindow*>(pWin) : NULL;
   if (pTop && !pTop->IsActive()) pause(true);
   // we either create a new piece, after the previous one was dropped to the

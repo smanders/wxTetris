@@ -7,21 +7,7 @@ function(getCompilerPrefix _ret)
   set(options GCC_TWO_VER)
   cmake_parse_arguments(X "${options}" "" "" ${ARGN})
   if(MSVC)
-    if(MSVC_VERSION GREATER 1910 AND MSVC_VERSION LESS 1919) # VS 15.0 2017
-      set(prefix vc141)
-    elseif(MSVC_VERSION EQUAL 1900) # VS 14.0 2015
-      set(prefix vc140)
-    elseif(MSVC_VERSION EQUAL 1800) # VS 12.0 2013
-      set(prefix vc120)
-    elseif(MSVC_VERSION EQUAL 1700) # VS 11.0 2012
-      set(prefix vc110)
-    elseif(MSVC_VERSION EQUAL 1600) # VS 10.0 2010
-      set(prefix vc100)
-    elseif(MSVC_VERSION EQUAL 1500) # VS 9.0 2008
-      set(prefix vc90)
-    else()
-      message(SEND_ERROR "Findexternpro.cmake: MSVC compiler support lacking")
-    endif()
+    set(prefix vc${MSVC_TOOLSET_VERSION})
   elseif(CMAKE_COMPILER_IS_GNUCXX)
     exec_program(${CMAKE_CXX_COMPILER}
       ARGS ${CMAKE_CXX_COMPILER_ARG1} -dumpfullversion -dumpversion
@@ -114,6 +100,23 @@ else()
     message(STATUS "local: ${CMAKE_CURRENT_LIST_FILE}.")
     message(STATUS "externpro: ${findFile}.")
     message(AUTHOR_WARNING "Find scripts don't match. You may want to update the local with the externpro version.")
+  endif()
+  execute_process(COMMAND lsb_release --description
+    OUTPUT_VARIABLE lsbDesc # LSB (Linux Standard Base)
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+    )
+  if(NOT lsbDesc STREQUAL "")
+    set(infoFile ${externpro_DIR}/externpro_${externpro_SIG}.txt)
+    set(lsbString "^lsb_release Description:[ \t]+(.*)")
+    file(STRINGS ${infoFile} LSB REGEX "${lsbString}")
+    string(REGEX REPLACE "${lsbString}" "\\1" xpLSB ${LSB})
+    string(REGEX REPLACE "Description:[ \t]+(.*)" "\\1" thisLSB ${lsbDesc})
+    if(NOT xpLSB STREQUAL thisLSB)
+      message(STATUS "externpro \"${xpLSB}\" build")
+      message(STATUS "${PROJECT_NAME} \"${thisLSB}\" build")
+      message(AUTHOR_WARNING "linux distribution mismatch")
+    endif()
   endif()
   message(STATUS "Found externpro: ${externpro_DIR}")
   list(APPEND XP_MODULE_PATH ${moduleDir})

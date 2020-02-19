@@ -61,32 +61,39 @@ unset(externpro_DIR CACHE)
 # find the path to the externpro directory
 getCompilerPrefix(COMPILER)
 getNumBits(BITS)
+# projects using externpro: set(externpro_REV `git describe --tags`)
 set(externpro_SIG ${externpro_REV}-${COMPILER}-${BITS})
-set(PFX86 "ProgramFiles(x86)")
+# TRICKY: match what is done in cmake's Modules/CPack.cmake, setting CPACK_SYSTEM_NAME
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(XP_SYSTEM_NAME win${BITS})
+else()
+  set(XP_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
+endif()
+set(XP_DEV_BUILD_NAME "externpro_${externpro_SIG}")
+set(XP_INSTALLED_NAME "externpro-${externpro_SIG}-${XP_SYSTEM_NAME}")
+# NOTE: environment variable setting examples:
+# set(ENV{externpro_BUILD_DIR} ~/src/externpro/_bld)
+# set(ENV{extern_DIR} ~/extern)
 find_path(externpro_DIR
   NAMES
     externpro_${externpro_SIG}.txt
   PATHS
-    # build versions
-    C:/src/externpro/_bld/externpro_${externpro_SIG}
-    ~/src/externpro/_bld/externpro_${externpro_SIG}
-    # environment variable - build versions
-    "$ENV{externpro_BUILD_DIR}/externpro_${externpro_SIG}"
-    # environment variable - installed versions
-    "$ENV{extern_DIR}/externpro ${externpro_SIG}"
-    "$ENV{extern_DIR}/externpro-${externpro_SIG}-${CMAKE_SYSTEM_NAME}"
+    # developer/build versions
+    "$ENV{externpro_BUILD_DIR}/${XP_DEV_BUILD_NAME}"
     # installed versions
-    "$ENV{ProgramW6432}/externpro ${externpro_SIG}"
-    "$ENV{${PFX86}}/externpro ${externpro_SIG}"
-    "~/extern/externpro-${externpro_SIG}-${CMAKE_SYSTEM_NAME}"
-    "/opt/extern/externpro-${externpro_SIG}-${CMAKE_SYSTEM_NAME}"
+    "$ENV{extern_DIR}/${XP_INSTALLED_NAME}"
+    "~/extern/${XP_INSTALLED_NAME}"
+    "/opt/extern/${XP_INSTALLED_NAME}"
+    "C:/opt/extern/${XP_INSTALLED_NAME}"
+    "C:/dev/extern/${XP_INSTALLED_NAME}"
   DOC "externpro directory"
   )
 if(NOT externpro_DIR)
-  if(DEFINED externpro_INSTALLER_LOCATION)
+  set(externpro_INSTALL_INFO ".\n Installers located at https://github.com/smanders/externpro/releases\n tar -xf /path/to/externpro*.tar.xz --directory=/path/to/install/") # externpro can set(XP_INSTALL_INFO) to define this
+  if(DEFINED externpro_INSTALLER_LOCATION) # defined by project using externpro
     message(FATAL_ERROR "externpro ${externpro_SIG} not found.\n${externpro_INSTALLER_LOCATION}")
   else()
-    message(FATAL_ERROR "externpro ${externpro_SIG} not found")
+    message(FATAL_ERROR "externpro ${externpro_SIG} not found${externpro_INSTALL_INFO}")
   endif()
 else()
   set(moduleDir ${externpro_DIR}/share/cmake)

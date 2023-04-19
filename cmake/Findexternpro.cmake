@@ -89,7 +89,29 @@ find_path(externpro_DIR
   DOC "externpro directory"
   )
 if(NOT externpro_DIR)
-  set(externpro_INSTALL_INFO ".\n Installers located at https://github.com/smanders/externpro/releases\n tar -xf /path/to/externpro*.tar.xz --directory=/path/to/install/") # externpro can set(XP_INSTALL_INFO) to define this
+  if(EXISTS $ENV{extern_DIR})
+    set(archive_name "${XP_INSTALLED_NAME}.tar.xz")
+    message(STATUS "${XP_INSTALLED_NAME} not found.")
+    message(STATUS "Attempting download of ${archive_name} ...")
+    file(DOWNLOAD https://github.com/smanders/externpro/releases/download/${externpro_REV}/${archive_name}
+      $ENV{extern_DIR}/${archive_name}
+      )
+    message(STATUS "Attempting extraction of ${archive_name} ...")
+    file(ARCHIVE_EXTRACT
+      INPUT $ENV{extern_DIR}/${archive_name}
+      DESTINATION $ENV{extern_DIR}
+      )
+    message(STATUS "Attempting to remove ${archive_name}")
+    file(REMOVE $ENV{extern_DIR}/${archive_name})
+    if(EXISTS $ENV{extern_DIR}/${XP_INSTALLED_NAME})
+      set(externpro_DIR $ENV{extern_DIR}/${XP_INSTALLED_NAME})
+    else()
+      message(AUTHOR_WARNING "Automatic download and extraction failed. Verify https://github.com/smanders/externpro/releases/download/${externpro_REV}/${archive_name} exists and can be accessed.")
+    endif()
+  endif()
+endif()
+if(NOT externpro_DIR)
+  set(externpro_INSTALL_INFO ".\n Installers located at https://github.com/smanders/externpro/releases\n tar -xf /path/to/externpro*.tar.xz --directory=/path/to/install/\n ** or set extern_DIR in ENV for automatic download and extraction\n") # externpro can set(XP_INSTALL_INFO) to define this
   if(DEFINED externpro_INSTALLER_LOCATION) # defined by project using externpro
     message(FATAL_ERROR "externpro ${externpro_SIG} not found.\n${externpro_INSTALLER_LOCATION}")
   else()
@@ -100,7 +122,6 @@ else()
   set(moduleDir ${externpro_DIR}/share/cmake)
   list(APPEND XP_MODULE_PATH ${moduleDir})
   set(FPHSA_NAME_MISMATCHED TRUE) # find_package_handle_standard_args NAME_MISMATCHED (prefix usexp-)
-  link_directories(${externpro_DIR}/lib)
   if(EXISTS ${moduleDir}/xpfunmac.cmake)
     include(${moduleDir}/xpfunmac.cmake)
   endif()

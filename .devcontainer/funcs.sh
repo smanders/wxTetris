@@ -28,21 +28,42 @@ function gitlfsreq
     exit 1
   fi
 }
+function gitcfgreq
+{
+  if [[ ! -f ~/.gitconfig ]]; then
+    echo "~/.gitconfig does not exist, please create with"
+    echo "  git config --global user.name \"Someone Here\""
+    echo "  git config --global user.email someonehere@sdl.usu.edu"
+    echo "verify configuration with"
+    echo "  git config --global --list"
+    exit 1
+  fi
+}
 function composereq
 {
   if ! command -v docker-compose &>/dev/null; then
     echo "docker-compose not installed, attempting (requires sudo)..."
     sudo sh -c \
-     "curl -L 'https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)' \
+     "curl -L 'https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)' \
         -o /usr/local/bin/docker-compose \
       && chmod +x /usr/local/bin/docker-compose"
     exit 1
   fi
 }
-function pvreq
+function buildreq
+{
+  gitcfgreq
+  composereq
+}
+function offlinereq
 {
   if ! command -v pv >/dev/null; then
-    echo "NOTE: install pv before creating or using an offline container bundle"
+    echo "NOTE: install pv before creating an offline container bundle"
+    exit 1
+  fi
+  if ! command -v bzip2 >/dev/null; then
+    echo "NOTE: install bzip2 before creating an offline container bundle"
+    exit 1
   fi
 }
 function runreq

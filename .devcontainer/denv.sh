@@ -12,7 +12,7 @@ if [[ -z "${display_host}" ]]; then
   display_env=${DISPLAY}
   xauth_env=
 elif [[ "${display_host}" == "localhost" ]]; then
-  echo "NOTE: X11UseLocalhost should be no in /etc/ssh/sshd_config"
+  echo "NOTE: X11UseLocalhost should be no in /etc/ssh/sshd_config or /etc/centrifydc/ssh/sshd_config"
 else
   display_screen=$(echo $DISPLAY | cut -d: -f2)
   display_num=$(echo ${display_screen} | cut -d. -f1)
@@ -28,7 +28,11 @@ env="COMPOSE_PROJECT_NAME=${PWD##*/}"
 env="${env}\nHNAME=${rel}"
 env="${env}\nUSERID=$(id -u ${USER})"
 env="${env}\nGROUPID=$(id -g ${USER})"
-env="${env}\nTZ=$(head -n 1 /etc/timezone)"
+if [[ -f /etc/timezone ]]; then
+  env="${env}\nTZ=$(head -n 1 /etc/timezone)"
+elif command -v timedatectl >/dev/null; then
+  env="${env}\nTZ=$(timedatectl status | grep "zone" | sed -e 's/^[ ]*Time zone: \(.*\) (.*)$/\1/g')"
+fi
 env="${env}\nDISPLAY_ENV=${display_env}"
 env="${env}\nXAUTH_ENV=${xauth_env}"
 cr8="#/usr/bin/env bash"
@@ -51,9 +55,9 @@ else
   env="${env}\nADDSRC2=_bld/*.sh"
 fi
 ##############################
-# NOTE: EXTERN_DIR and GCC_VER need to match buildpro/image/centos7-pro.dockerfile
+# NOTE: EXTERN_DIR and GCC_VER need to match buildpro's public/centos7-pro.dockerfile
 EXTERN_DIR=/opt/extern
-GCC_VER=gcc731
+GCC_VER=gcc931
 ##############################
 function findVer
 {
@@ -69,7 +73,7 @@ function findVer
   echo "$fver"
 }
 ##############################
-wproVer="$(findVer 'set(webpro_REV' CMakeLists.txt */CMakeLists.txt */defaults.txt)"
+wproVer="$(findVer 'set(webpro_REV' CMakeLists.txt */CMakeLists.txt */toplevel.cmake */*/toplevel.cmake */defaults.txt)"
 if [[ -n "${wproVer}" ]]; then
   wproBase=webpro-${wproVer}-${GCC_VER}-64-Linux
   if [[ ${wproVer} < "20.05.1" ]]; then
@@ -92,7 +96,7 @@ env="${env}\nWEBPRO=${WEBPRO}"
 ##############################
 iproVer="$(findVer 'set(internpro_REV' CMakeLists.txt */toplevel.cmake */*/toplevel.cmake */defaults.txt)"
 if [[ -n "${iproVer}" ]] && ${doisrhub}; then
-  INTERNPRO_DL="wget ${urlPfx}/smanders/internpro/releases/download/${iproVer}/internpro-${iproVer}-${GCC_VER}-64-Linux.tar.xz"
+  INTERNPRO_DL="wget ${urlPfx}/internpro/internpro/releases/download/${iproVer}/internpro-${iproVer}-${GCC_VER}-64-Linux.tar.xz"
   INTERNPRO="${INTERNPRO_DL} -qO- | tar -xJ -C ${EXTERN_DIR}"
 fi
 env="${env}\nINTERNPRO=${INTERNPRO}"
@@ -113,8 +117,8 @@ env="${env}\nPLUGINSDK=${PLUGINSDK}"
 ##############################
 if [ -f .crtoolrc ]; then
   crtv=`grep version .crtoolrc`
-elif [ -f image/defaults.txt ]; then
-  crtv=`grep CRTOOL_REV image/defaults.txt`
+elif [ -f private/defaults.txt ]; then
+  crtv=`grep CRTOOL_REV private/defaults.txt`
 fi
 crToolVer=`echo ${crtv} | awk '{$1=$1};1' | cut -d " " -f2 | cut -d "\"" -f2`
 crWrapVer=20.07.1
@@ -146,7 +150,13 @@ if command -v host >/dev/null && host ${hst} | grep "not found" >/dev/null; then
       # if the host specified by FROM isn't reachable, the docker image isn't local, and the offline tar.bz2 exists
       # then load the offline docker image
       echo "loading docker image from docker.${rel}.tar.bz2..."
-      pv ${offlineDir}/docker.${rel}.tar.bz2 | sudo docker load
+      if ! command -v pv >/dev/null; then
+        echo "NOTE: installing pv will show 'docker load' progress"
+        pipe=cat
+      else
+        pipe=pv
+      fi
+      ${pipe} ${offlineDir}/docker.${rel}.tar.bz2 | docker load
     fi
   fi
 fi

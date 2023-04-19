@@ -59,7 +59,7 @@ public:
     : wxCommandEvent(commandType, winid), m_show(show)
   {
   }
-  FunEvent(const FunEvent& evt) : wxCommandEvent(evt), m_show(false) {}
+  FunEvent(const FunEvent& evt) : wxCommandEvent(evt), m_show(false) { }
   virtual wxEvent* Clone() const { return new FunEvent(*this); }
   bool show() const { return m_show; }
 

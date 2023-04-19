@@ -1,6 +1,6 @@
-#include "Tetris.hpp"
-
 #include <wx/app.h>
+
+#include "Tetris.hpp"
 
 class TetrisApp : public wxApp
 {

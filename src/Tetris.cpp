@@ -147,8 +147,9 @@ bool TetrisPanel::Show(bool show)
 }
 
 #pragma warning(push)
-#pragma warning(disable : 4351) // new behavior - elements of array
-                                // 'Board::m_board' will be default initialized
+#pragma warning(                                                               \
+  disable : 4351) // new behavior - elements of array
+                  // 'Board::m_board' will be default initialized
 Board::Board(wxWindow* pParent, wxStatusBar* const pStatusBar)
   : wxPanel(pParent,
             wxID_ANY,
@@ -181,7 +182,8 @@ void Board::start()
   recreateBuffer();
   m_isFallingFinished = false;
   m_numLinesRemoved = 0;
-  if (m_pStatusBar) m_pStatusBar->SetStatusText("0");
+  if (m_pStatusBar)
+    m_pStatusBar->SetStatusText("0");
   clearBoard();
   newPiece();
   m_timer.Start(ms_timerInterval);
@@ -194,7 +196,8 @@ void Board::onPaint(wxPaintEvent& WXUNUSED(rEvent))
   wxSize size = GetClientSize();
   // paint background - see comment in onEraseBackground method to see why
   wxColour bgc = GetBackgroundColour();
-  if (!bgc.Ok()) bgc = wxSystemSettings::GetColour(wxSYS_COLOUR_3DFACE);
+  if (!bgc.Ok())
+    bgc = wxSystemSettings::GetColour(wxSYS_COLOUR_3DFACE);
   dc.SetBrush(wxBrush(bgc));
   dc.SetPen(wxPen(bgc, 1));
   dc.DrawRectangle(size);
@@ -266,10 +269,9 @@ void Board::onKeyDown(wxKeyEvent& rEvent)
   if (WXK_HOME == keycode)
   {
     pause();
-    wxWindow* pWin =
-      GetParent()->IsTopLevel()
-        ? GetParent()
-        : (GetGrandParent()->IsTopLevel()) ? GetGrandParent() : NULL;
+    wxWindow* pWin = GetParent()->IsTopLevel()          ? GetParent()
+                     : (GetGrandParent()->IsTopLevel()) ? GetGrandParent()
+                                                        : NULL;
     const wxEventType EVT_TETRIS = wxNewEventType();
     FunEvent evt(EVT_TETRIS, pWin ? pWin->GetId() : wxID_ANY);
     evt.SetInt(0);
@@ -311,12 +313,12 @@ void Board::onKeyDown(wxKeyEvent& rEvent)
 
 void Board::onTimer(wxCommandEvent& WXUNUSED(rEvent))
 {
-  wxWindow* pWin =
-    GetParent()->IsTopLevel()
-      ? GetParent()
-      : (GetGrandParent()->IsTopLevel()) ? GetGrandParent() : NULL;
+  wxWindow* pWin = GetParent()->IsTopLevel()          ? GetParent()
+                   : (GetGrandParent()->IsTopLevel()) ? GetGrandParent()
+                                                      : NULL;
   wxTopLevelWindow* pTop = pWin ? static_cast<wxTopLevelWindow*>(pWin) : NULL;
-  if (pTop && !pTop->IsActive()) pause(true);
+  if (pTop && !pTop->IsActive())
+    pause(true);
   // we either create a new piece, after the previous one was dropped to the
   // bottom, or we move a falling piece one line down
   if (m_isFallingFinished)
@@ -339,14 +341,16 @@ void Board::pause(bool forced)
   {
     wxString str;
     str.Printf(wxT("%d : paused"), m_numLinesRemoved);
-    if (m_pStatusBar) m_pStatusBar->SetStatusText(str);
+    if (m_pStatusBar)
+      m_pStatusBar->SetStatusText(str);
     m_timer.Stop();
   }
   else
   {
     wxString str;
     str.Printf(wxT("%d"), m_numLinesRemoved);
-    if (m_pStatusBar) m_pStatusBar->SetStatusText(str);
+    if (m_pStatusBar)
+      m_pStatusBar->SetStatusText(str);
     m_timer.Start(ms_timerInterval);
   }
   Refresh();
@@ -378,7 +382,8 @@ void Board::dropDown()
   int newY = m_curY;
   while (newY > 0)
   {
-    if (!tryMove(m_curShape, m_curX, newY - 1)) break;
+    if (!tryMove(m_curShape, m_curX, newY - 1))
+      break;
     --newY;
   }
   pieceDropped();
@@ -386,7 +391,8 @@ void Board::dropDown()
 
 void Board::oneLineDown()
 {
-  if (!tryMove(m_curShape, m_curX, m_curY - 1)) pieceDropped();
+  if (!tryMove(m_curShape, m_curX, m_curY - 1))
+    pieceDropped();
 }
 
 void Board::pieceDropped()
@@ -399,7 +405,8 @@ void Board::pieceDropped()
   }
   // call removeFullLines to check if we have at least one full line
   removeFullLines();
-  if (!m_isFallingFinished) newPiece();
+  if (!m_isFallingFinished)
+    newPiece();
 }
 
 void Board::removeFullLines()
@@ -431,7 +438,8 @@ void Board::removeFullLines()
     m_numLinesRemoved += numFullLines;
     wxString str;
     str.Printf(wxT("%d"), m_numLinesRemoved);
-    if (m_pStatusBar) m_pStatusBar->SetStatusText(str);
+    if (m_pStatusBar)
+      m_pStatusBar->SetStatusText(str);
     m_isFallingFinished = true;
     m_curShape.setShape(eSHAPE_0);
     Refresh();
@@ -449,7 +457,8 @@ void Board::newPiece()
     m_timer.Stop();
     wxString str;
     str.Printf(wxT("%d : game over"), m_numLinesRemoved);
-    if (m_pStatusBar) m_pStatusBar->SetStatusText(str);
+    if (m_pStatusBar)
+      m_pStatusBar->SetStatusText(str);
   }
 }
 
@@ -459,8 +468,10 @@ bool Board::tryMove(const Shape& newPiece, int newX, int newY)
   {
     int x = newX + newPiece.x(i);
     int y = newY - newPiece.y(i);
-    if (x < 0 || x >= eBOARD_WIDTH || y < 0 || y >= eBOARD_HEIGHT) return false;
-    if (eSHAPE_0 != shapeAt(x, y)) return false;
+    if (x < 0 || x >= eBOARD_WIDTH || y < 0 || y >= eBOARD_HEIGHT)
+      return false;
+    if (eSHAPE_0 != shapeAt(x, y))
+      return false;
   }
   m_curShape = newPiece;
   m_curX = newX;
@@ -525,8 +536,10 @@ void Board::drawSquare(wxBufferedPaintDC& rDc,
 bool Board::recreateBuffer(const wxSize& rSize)
 {
   wxSize sz = rSize;
-  if (wxDefaultSize == sz) sz = GetClientSize();
-  if (sz.x < 1 || sz.y < 1) return false;
+  if (wxDefaultSize == sz)
+    sz = GetClientSize();
+  if (sz.x < 1 || sz.y < 1)
+    return false;
   if (!m_bufferBitmap.Ok() || m_bufferBitmap.GetWidth() < sz.x ||
       m_bufferBitmap.GetHeight() < sz.y)
   {
@@ -618,7 +631,8 @@ int Shape::maxY() const
 
 Shape Shape::rotateLeft() const
 {
-  if (eSHAPE_O == m_shape) return *this;
+  if (eSHAPE_O == m_shape)
+    return *this;
   Shape result;
   result.m_shape = m_shape;
   for (int i = 0; i < 4; i++)
@@ -631,7 +645,8 @@ Shape Shape::rotateLeft() const
 
 Shape Shape::rotateRight() const
 {
-  if (eSHAPE_O == m_shape) return *this;
+  if (eSHAPE_O == m_shape)
+    return *this;
   Shape result;
   result.m_shape = m_shape;
   for (int i = 0; i < 4; i++)

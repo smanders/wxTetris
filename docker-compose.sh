@@ -1,1 +1,1 @@
-.devcontainer/compose.bld.sh
+.devcontainer/compose.pro.sh

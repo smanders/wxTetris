@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.31)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/.devcontainer/cmake)
 include(preproject)
-project(wxTetris)
+project(wxTetris VERSION 0.9.0)
 include(xptoplevel)
 set(exe_srcs src/App.cpp src/Tetris.cpp src/Tetris.hpp LICENSE)
 add_executable(${PROJECT_NAME} WIN32 ${exe_srcs})

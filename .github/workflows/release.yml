@@ -13,4 +13,8 @@ jobs:
     with:
       workflow_run_url: ${{ github.event.inputs.workflow_run_url }}
       artifact_pattern: "*.tar.xz"
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     secrets: inherit

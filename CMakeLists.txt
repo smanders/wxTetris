@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES .devcontainer/cmake/xproinc.cmake)
-project(wxTetris VERSION 1.1.0)
+project(wxTetris VERSION 1.2.0)
 include(xptoplevel)
 set(exe_srcs src/App.cpp src/Tetris.cpp src/Tetris.hpp LICENSE)
 add_executable(${PROJECT_NAME} WIN32 ${exe_srcs})

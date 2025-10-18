@@ -59,7 +59,7 @@ namespace wxx
     void onEraseBackground(wxEraseEvent& rEvent);
     void onSize(wxSizeEvent& rEvent);
     void onKeyDown(wxKeyEvent& rEvent); // see this method for controls
-    void onTimer(wxCommandEvent& rEvent);
+    void onTimer(wxTimerEvent& rEvent);
 
   private:
     enum BoardDims_e
@@ -167,12 +167,11 @@ Board::Board(wxWindow* pParent, wxStatusBar* const pStatusBar)
     m_pStatusBar(pStatusBar)
 {
   m_timer.SetOwner(this, m_timer.GetId());
-  Connect(wxEVT_PAINT, wxPaintEventHandler(Board::onPaint));
-  Connect(
-    wxEVT_ERASE_BACKGROUND, wxEraseEventHandler(Board::onEraseBackground));
-  Connect(wxEVT_SIZE, wxSizeEventHandler(Board::onSize));
-  Connect(wxEVT_KEY_DOWN, wxKeyEventHandler(Board::onKeyDown));
-  Connect(wxEVT_TIMER, wxCommandEventHandler(Board::onTimer));
+  Bind(wxEVT_PAINT, &Board::onPaint, this);
+  Bind(wxEVT_ERASE_BACKGROUND, &Board::onEraseBackground, this);
+  Bind(wxEVT_SIZE, &Board::onSize, this);
+  Bind(wxEVT_KEY_DOWN, &Board::onKeyDown, this);
+  Bind(wxEVT_TIMER, &Board::onTimer, this, m_timer.GetId());
 }
 #pragma warning(pop)
 
@@ -311,7 +310,7 @@ void Board::onKeyDown(wxKeyEvent& rEvent)
   }
 }
 
-void Board::onTimer(wxCommandEvent& WXUNUSED(rEvent))
+void Board::onTimer(wxTimerEvent& WXUNUSED(rEvent))
 {
   wxWindow* pWin = GetParent()->IsTopLevel()          ? GetParent()
                    : (GetGrandParent()->IsTopLevel()) ? GetGrandParent()

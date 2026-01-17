@@ -6,10 +6,13 @@ set(exe_srcs src/App.cpp src/Tetris.cpp src/Tetris.hpp LICENSE)
 add_executable(${PROJECT_NAME} WIN32 ${exe_srcs})
 find_package(wxwidgets)
 target_link_libraries(${PROJECT_NAME} PRIVATE wx::core)
-include(GNUInstallDirs)
-set(XP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_DATADIR}/cmake)
 set(targetsFile ${PROJECT_NAME}-targets)
-xpPackageDevel(TARGETS_FILE ${targetsFile} EXE ${PROJECT_NAME})
+xpExternPackage(TARGETS_FILE ${targetsFile} EXE ${PROJECT_NAME}
+  BASE v0 XPDIFF "intro" PVT_DEPS wxwidgets
+  WEB "https://github.com/smanders/wxTetris"
+  DESC "wxWidgets Tetris game"
+  LICENSE "[MIT](https://github.com/smanders/wxTetris/blob/dev/LICENSE 'MIT License')"
+  )
 install(TARGETS ${PROJECT_NAME} EXPORT ${targetsFile})
 install(EXPORT ${targetsFile} DESTINATION ${XP_INSTALL_CMAKEDIR})
 xpSourceListAppend("${exe_srcs}")

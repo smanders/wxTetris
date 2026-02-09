@@ -14,5 +14,5 @@ xpExternPackage(TARGETS_FILE ${targetsFile} EXE ${PROJECT_NAME}
   LICENSE "[MIT](https://github.com/smanders/wxTetris/blob/dev/LICENSE 'MIT License')"
   )
 install(TARGETS ${PROJECT_NAME} EXPORT ${targetsFile})
-install(EXPORT ${targetsFile} DESTINATION ${XP_INSTALL_CMAKEDIR})
+install(EXPORT ${targetsFile} DESTINATION ${CMAKE_INSTALL_CMAKEDIR})
 xpSourceListAppend("${exe_srcs}")
